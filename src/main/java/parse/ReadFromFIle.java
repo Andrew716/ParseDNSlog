@@ -78,7 +78,7 @@ public class ReadFromFIle {
     public static void writeDataToPOJOClasses() throws IOException {
         List<UniversalClass> data = readFile();
         Send send = null;
-        Receive receive =null;
+        Receive receive = null;
         IP ip;
         Set<QuestionName> questionNameSet;
         QuestionName questionName;
@@ -87,7 +87,7 @@ public class ReadFromFIle {
         PrintWriter printWriter = new PrintWriter(fileWriter);
         ParsedString parsedString = new ParsedString();
         System.out.println(data.size());
-        for (int i = 0; i < data.size()-1; i++){
+        for (int i = 0; i < data.size() - 1; i++) {
             ip = new IP(data.get(i).getRemoteIP());
             boolean flagForSendEqual = false;
             boolean flagForReceiveEqual = false;
@@ -95,110 +95,107 @@ public class ReadFromFIle {
             boolean flagForReceiveNotEqual = false;
             int numberForComparedQuestionNumber;
             questionNameSet = new HashSet<QuestionName>();
-            for (int j = 1; j < data.size(); j++){
-                if (data.get(i).getRemoteIP().equals(data.get(j).getRemoteIP())){
-                    if ( (flagForEquality = data.get(i).getQuestionName().equals(data.get(j).getQuestionName()))) {
-                        send = new Send();
-                        receive = new Receive();
-                        if (data.get(i).getSendReceive().equals("Snd") && data.get(j).getSendReceive().equals("Rcv")) {
-                            System.out.println("11111111111111");
-                            receive.addRestData(addDataToRestDataClass(data.get(j)));
-                            flagForSendEqual = true;
+            questionName = new QuestionName(data.get(i).getQuestionName());
+            if (data.get(i).getSendReceive().equals("Snd")) {
+                send = new Send();
+                send.addRestData(addDataToRestDataClass(data.get(i)));
+                questionName.setSend(send);
+                questionNameSet.add(questionName);
+            }
+            if (data.get(i).getSendReceive().equals("Rcv")) {
+                receive = new Receive();
+                receive.addRestData(addDataToRestDataClass(data.get(i)));
+                questionName.setReceive(receive);
+                questionNameSet.add(questionName);
+            }
+            for (int j = 1; j < data.size(); j++) {
+                if (data.get(i).getRemoteIP().equals(data.get(j).getRemoteIP())) {
+                    if (data.get(i).getQuestionName().equals(data.get(j).getQuestionName())) {
+                        if (data.get(j).getSendReceive().equals("Rcv")) {
+                            receive = new Receive();
+                            questionName = new QuestionName(data.get(j).getQuestionName());
+                            if (questionNameSet.contains(questionName)) {
+                                Iterator iterator = questionNameSet.iterator();
+                                while (iterator.hasNext()) {
+                                    if (iterator.next().equals(questionName)) {
+                                        receive.addRestData(addDataToRestDataClass(data.get(j)));
+                                        ((QuestionName)iterator.next()).setReceive(receive);
+                                    }
+                                }
+                            } else {
+                                receive.addRestData(addDataToRestDataClass(data.get(j)));
+                                questionName.setReceive(receive);
+                                questionNameSet.add(questionName);
+                            }
                         }
-                        if (data.get(i).getSendReceive().equals("Rcv")  && data.get(j).getSendReceive().equals("Rcv")) {
-                            System.out.println("222222222222222");
-                            receive.addRestData(addDataToRestDataClass(data.get(j)));
-                            flagForReceiveEqual = true;
+                        if (data.get(j).getSendReceive().equals("Snd")) {
+                            send = new Send();
+                            questionName = new QuestionName(data.get(j).getQuestionName());
+                            if (questionNameSet.contains(questionName)) {
+                                Iterator iterator = questionNameSet.iterator();
+                                while (iterator.hasNext()) {
+                                    if (iterator.next().equals(questionName)) {
+                                        send.addRestData(addDataToRestDataClass(data.get(j)));
+                                        ((QuestionName)iterator.next()).setSend(send);
+                                    }
+                                }
+                            } else {
+                                send.addRestData(addDataToRestDataClass(data.get(j)));
+                                questionName.setSend(send);
+                                questionNameSet.add(questionName);
+                            }
                         }
-                        if (data.get(i).getSendReceive().equals("Rcv")  && data.get(j).getSendReceive().equals("Snd")) {
-                            System.out.println("333333333333333333");
-                            send.addRestData(addDataToRestDataClass(data.get(j)));
-                            flagForReceiveEqual = true;
-                        }
-                        if (data.get(i).getSendReceive().equals("Snd")  && data.get(j).getSendReceive().equals("Snd")) {
-                            System.out.println("4444444444444444444444");
-                            send.addRestData(addDataToRestDataClass(data.get(j)));
-                            flagForSendEqual = true;
-                        }
-                        questionName = new QuestionName(data.get(i).getQuestionName());
-                        questionName.setSend(send);
-                        questionName.setReceive(receive);
-                        questionNameSet.add(questionName);
-                    }
-                    if (flagForSendEqual){
-                        send.addRestData(addDataToRestDataClass(data.get(i)));
-                    }
-                    if (flagForReceiveEqual){
-                        receive.addRestData(addDataToRestDataClass(data.get(i)));
-                    }
-                   /* if (!flagForEquality){
-                        if (data.get(i).getSendReceive().equals("Snd")){
-                            send.addRestData(addDataToRestDataClass(data.get(i)));
-                            questionName = new QuestionName(data.get(i).getQuestionName());
+                    }else {
+                        if (data.get(j).getSendReceive().equals("Snd")){
+                            send = new Send();
+                            questionName = new QuestionName(data.get(j).getQuestionName());
                             if (questionNameSet.contains(questionName)){
                                 Iterator iterator = questionNameSet.iterator();
                                 while (iterator.hasNext()){
-                                    if ((iterator.next()).equals(data.get(i).getQuestionName())){
-                                        questionName = ((QuestionName)iterator.next());
-                                        questionName.setSend(send);
+                                    if (iterator.next().equals(questionName)){
+                                        send.addRestData(addDataToRestDataClass(data.get(j)));
+                                        ((QuestionName)iterator.next()).setSend(send);
                                     }
                                 }
                             }else {
-                                questionName = new QuestionName()
+                                send.addRestData(addDataToRestDataClass(data.get(j)));
+                                questionName.setSend(send);
+                                questionNameSet.add(questionName);
                             }
                         }
-                        if (data.get(i).getSendReceive().equals("Rcv")){
-                            receive.addRestData(addDataToRestDataClass(data.get(i)));
-                            questionName = new QuestionName(data.get(i).getQuestionName());
-                            if (questionNameSet.contains(questionName)){
+                        if (data.get(j).getSendReceive().equals("Rcv")){
+                            receive = new Receive();
+                            questionName = new QuestionName(data.get(j).getQuestionName());
+                            if (questionNameSet.contains(questionName)) {
                                 Iterator iterator = questionNameSet.iterator();
-                                while (iterator.hasNext()){
-                                    if ((iterator.next()).equals(data.get(i).getQuestionName())){
-                                        questionName = ((QuestionName)iterator.next());
-                                        questionName.setReceive(receive);
+                                while (iterator.hasNext()) {
+                                    if (iterator.next().equals(questionName)) {
+                                        receive.addRestData(addDataToRestDataClass(data.get(j)));
+                                        ((QuestionName)iterator.next()).setReceive(receive);
                                     }
                                 }
+                            } else {
+                                receive.addRestData(addDataToRestDataClass(data.get(j)));
+                                questionName.setReceive(receive);
+                                questionNameSet.add(questionName);
                             }
                         }
-                        questionName = new QuestionName(data.get(i).getQuestionName());
-                        if (questionNameSet.contains(questionName)){
-
-                        }
-                    }*/
+                    }
+                    System.out.println(questionNameSet.toString());
+                    numberForComparedQuestionNumber = j;
+                    data.remove(numberForComparedQuestionNumber);
+                    //j = j - 1;
+                    System.out.println("j =    " + j);
+                    System.out.println(data.size());
                 }
-                System.out.println(questionNameSet.toString());
-                numberForComparedQuestionNumber = j;
-                data.remove(numberForComparedQuestionNumber);
-                //j = j - 1;
-                System.out.println("j =    " + j);
-                System.out.println(data.size());
+                int temp;
+                parsedString.add(ip, questionNameSet);
+                fileWriter.write(writeDataToJSONString(parsedString));
+                printWriter.println();
             }
-            int temp;
-            /*if (questionNameSet.contains(data.get(i).getQuestionName())){
-                if (flagForSendNotEqual){
-                    send.addRestData(addDataToRestDataClass(data.get(i)));
-                }
-                if (flagForReceiveNotEqual){
-                    receive.addRestData(addDataToRestDataClass(data.get(i)));
-                }
-            }else {
-                questionName = new QuestionName(data.get(i).getQuestionName());
-                if (flagForSendNotEqual){
-                    send.addRestData(addDataToRestDataClass(data.get(i)));
-                }
-                if (flagForReceiveNotEqual){
-                    receive.addRestData(addDataToRestDataClass(data.get(i)));
-                }
-            }*/
-
-            //parsedString.add(ip, questionNameSet);
-            //ip.setQuestionNameSet(questionNameSet);
-            parsedString.add(ip, questionNameSet);
-            fileWriter.write(writeDataToJSONString(parsedString));
-            printWriter.println();
+            fileWriter.close();
+            System.out.println(data.size());
         }
-        fileWriter.close();
-        System.out.println(data.size());
     }
 
     public static String writeDataToJSONString(ParsedString parsedString){
