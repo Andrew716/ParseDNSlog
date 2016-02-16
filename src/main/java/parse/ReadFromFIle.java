@@ -1,15 +1,10 @@
 package parse;
 
 import com.google.gson.Gson;
-import pojo.QuestionName;
-import pojo.Receive;
-import pojo.IP;
-import pojo.Opcode;
-import pojo.RestData;
-import pojo.Send;
-import pojo.ParsedString;
+import pojo.*;
 
 import java.io.*;
+import java.security.AccessControlContext;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,19 +75,18 @@ public class ReadFromFIle {
         Send send = null;
         Receive receive = null;
         IP ip;
+        boolean flagForReceive = false;
+        boolean flagForSend = false;
+        boolean flagForCircle = false;
         Set<QuestionName> questionNameSet;
         QuestionName questionName;
-        boolean flagForEquality;
         FileWriter fileWriter = new FileWriter(JSON_FILE_PATH);
         PrintWriter printWriter = new PrintWriter(fileWriter);
         ParsedString parsedString = new ParsedString();
         System.out.println(data.size());
-        for (int i = 0; i < data.size() - 1; i++) {
+        Action action = new Action();
+        for (int i = 0; i < data.size(); i++) {
             ip = new IP(data.get(i).getRemoteIP());
-            boolean flagForSendEqual = false;
-            boolean flagForReceiveEqual = false;
-            boolean flagForSendNotEqual = false;
-            boolean flagForReceiveNotEqual = false;
             int numberForComparedQuestionNumber;
             questionNameSet = new HashSet<QuestionName>();
             questionName = new QuestionName(data.get(i).getQuestionName());
@@ -101,104 +95,96 @@ public class ReadFromFIle {
                 send.addRestData(addDataToRestDataClass(data.get(i)));
                 questionName.setSend(send);
                 questionNameSet.add(questionName);
+                flagForSend = true;
             }
             if (data.get(i).getSendReceive().equals("Rcv")) {
                 receive = new Receive();
                 receive.addRestData(addDataToRestDataClass(data.get(i)));
                 questionName.setReceive(receive);
                 questionNameSet.add(questionName);
+                flagForReceive = true;
             }
-            for (int j = 1; j < data.size(); j++) {
-                if (data.get(i).getRemoteIP().equals(data.get(j).getRemoteIP())) {
-                    if (data.get(i).getQuestionName().equals(data.get(j).getQuestionName())) {
-                        if (data.get(j).getSendReceive().equals("Rcv")) {
-                            receive = new Receive();
-                            questionName = new QuestionName(data.get(j).getQuestionName());
-                            if (questionNameSet.contains(questionName)) {
-                                Iterator iterator = questionNameSet.iterator();
-                                while (iterator.hasNext()) {
-                                    if (iterator.next().equals(questionName)) {
-                                        receive.addRestData(addDataToRestDataClass(data.get(j)));
-                                        ((QuestionName)iterator.next()).setReceive(receive);
-                                    }
+            if (i < data.size()-1){
+                for (int j = i + 1; j < data.size(); j++) {
+
+                    if (data.get(i).getRemoteIP().equals(data.get(j).getRemoteIP())) {
+                        if (data.get(i).getQuestionName().equals(data.get(j).getQuestionName())) {
+                            if (data.get(j).getSendReceive().equals("Rcv")) {
+                                if (!flagForReceive){
+                                    receive = new Receive();
+                                    receive.addRestData(addDataToRestDataClass(data.get(j)));
+                                    questionName.setReceive(receive);
+                                }else {
+                                    receive.addRestData(addDataToRestDataClass(data.get(j)));
+                                    questionName.setReceive(receive);
                                 }
-                            } else {
-                                receive.addRestData(addDataToRestDataClass(data.get(j)));
-                                questionName.setReceive(receive);
-                                questionNameSet.add(questionName);
                             }
-                        }
-                        if (data.get(j).getSendReceive().equals("Snd")) {
-                            send = new Send();
-                            questionName = new QuestionName(data.get(j).getQuestionName());
-                            if (questionNameSet.contains(questionName)) {
-                                Iterator iterator = questionNameSet.iterator();
-                                while (iterator.hasNext()) {
-                                    if (iterator.next().equals(questionName)) {
-                                        send.addRestData(addDataToRestDataClass(data.get(j)));
-                                        ((QuestionName)iterator.next()).setSend(send);
-                                    }
+                            if (data.get(j).getSendReceive().equals("Snd")) {
+                                if (!flagForSend){
+                                    send = new Send();
+                                    send.addRestData(addDataToRestDataClass(data.get(j)));
+                                    questionName.setSend(send);
+                                }else {
+                                    send.addRestData(addDataToRestDataClass(data.get(j)));
+                                    questionName.setSend(send);
                                 }
-                            } else {
-                                send.addRestData(addDataToRestDataClass(data.get(j)));
-                                questionName.setSend(send);
-                                questionNameSet.add(questionName);
                             }
-                        }
-                    }else {
-                        if (data.get(j).getSendReceive().equals("Snd")){
-                            send = new Send();
-                            questionName = new QuestionName(data.get(j).getQuestionName());
-                            if (questionNameSet.contains(questionName)){
-                                Iterator iterator = questionNameSet.iterator();
-                                while (iterator.hasNext()){
-                                    if (iterator.next().equals(questionName)){
-                                        send.addRestData(addDataToRestDataClass(data.get(j)));
-                                        ((QuestionName)iterator.next()).setSend(send);
+                            System.out.println(questionNameSet.toString());
+                            numberForComparedQuestionNumber = j;
+                            data.remove(numberForComparedQuestionNumber);
+                            j = j - 1;
+                            System.out.println("j =    " + j);
+                            System.out.println("size:   "+data.size());
+                        }else {
+                            if (questionNameSet.contains(data.get(j).getQuestionName())){
+                                    Iterator iterator = questionNameSet.iterator();
+                                    while (iterator.hasNext()){
+                                        if (iterator.next().equals(data.get(j))){
+                                            if (data.get(j).getSendReceive().equals("Snd")){
+                                                send = new Send();
+                                                send.addRestData(addDataToRestDataClass(data.get(j)));
+                                                ((QuestionName)iterator.next()).setSend(send);
+                                            }
+                                            if (data.get(j).getSendReceive().equals("Rcv")){
+                                                receive = new Receive();
+                                                receive.addRestData(addDataToRestDataClass(data.get(j)));
+                                                ((QuestionName)iterator.next()).setReceive(receive);
+                                            }
+                                        }
                                     }
-                                }
                             }else {
-                                send.addRestData(addDataToRestDataClass(data.get(j)));
-                                questionName.setSend(send);
-                                questionNameSet.add(questionName);
-                            }
-                        }
-                        if (data.get(j).getSendReceive().equals("Rcv")){
-                            receive = new Receive();
-                            questionName = new QuestionName(data.get(j).getQuestionName());
-                            if (questionNameSet.contains(questionName)) {
-                                Iterator iterator = questionNameSet.iterator();
-                                while (iterator.hasNext()) {
-                                    if (iterator.next().equals(questionName)) {
-                                        receive.addRestData(addDataToRestDataClass(data.get(j)));
-                                        ((QuestionName)iterator.next()).setReceive(receive);
-                                    }
+                                questionName = new QuestionName(data.get(j).getQuestionName());
+                                if (data.get(j).equals("Snd")){
+                                    send = new Send();
+                                    send.addRestData(addDataToRestDataClass(data.get(j)));
+                                    questionName.setSend(send);
                                 }
-                            } else {
-                                receive.addRestData(addDataToRestDataClass(data.get(j)));
-                                questionName.setReceive(receive);
+                                if (data.get(j).equals("Rcv")){
+                                    receive = new Receive();
+                                    receive.addRestData(addDataToRestDataClass(data.get(j)));
+                                    questionName.setReceive(receive);
+                                }
                                 questionNameSet.add(questionName);
                             }
                         }
                     }
-                    System.out.println(questionNameSet.toString());
-                    numberForComparedQuestionNumber = j;
-                    data.remove(numberForComparedQuestionNumber);
-                    //j = j - 1;
-                    System.out.println("j =    " + j);
-                    System.out.println(data.size());
                 }
-                int temp;
-                parsedString.add(ip, questionNameSet);
-                fileWriter.write(writeDataToJSONString(parsedString));
-                printWriter.println();
             }
-            fileWriter.close();
+            flagForReceive = false;
+            flagForSend = false;
+            ip.setQuestionNameSet(questionNameSet);
+            action.addIP(ip);
             System.out.println(data.size());
         }
+        fileWriter.write(writeDataToJSONString(action));
+        printWriter.println();
+        fileWriter.close();
+        /*for (int i = 0; i < action.getIpList().size(); i++){
+            System.out.println(action.getIpList().get(i).toString());
+        }*/
     }
 
-    public static String writeDataToJSONString(ParsedString parsedString){
+    public static String writeDataToJSONString(Action parsedString){
         Gson gson = new Gson();
         String jsonString = gson.toJson(parsedString);
         return jsonString;
@@ -208,6 +194,10 @@ public class ReadFromFIle {
         Opcode opcode = new Opcode(universalClass.getOpcode().getFlagsHex(), universalClass.getOpcode().getFlagsCharCode(), universalClass.getOpcode().getRespondedCode());
         RestData restData = new RestData(universalClass.getDate(),universalClass.getTime(),universalClass.getThreadID(),universalClass.getContext(),universalClass.getInternalPacketIdentifier(),universalClass.getProtocol(),universalClass.getXidHex(),opcode, universalClass.getQuestionType());
         return restData;
+    }
+
+    public static void compareWithBlackList(){
+        //// TODO: 16.02.16 method for comparing JSON parsed file with BlackList ip
     }
 
     public static String turnDomainToGoodView(String badDomainString) {
@@ -251,6 +241,76 @@ public class ReadFromFIle {
         return realDomain;
     }
 }
+
+
+//send = new Send();
+//                                questionName = new QuestionName(data.get(j).getQuestionName());
+//                                if (questionNameSet.contains(questionName)) {
+//                                    Iterator iterator = questionNameSet.iterator();
+//                                    while (iterator.hasNext()) {
+//                                        if (iterator.next().equals(questionName)) {
+//                                            send.addRestData(addDataToRestDataClass(data.get(j)));
+//                                            ((QuestionName)iterator.next()).setSend(send);
+//                                        }
+//                                    }
+//                                } else {
+//                                    send.addRestData(addDataToRestDataClass(data.get(j)));
+//                                    questionName.setSend(send);
+//                                    questionNameSet.add(questionName);
+//                                }
+
+//                    }else {
+//                        if (data.get(j).getSendReceive().equals("Snd")){
+//                            send = new Send();
+//                            questionName = new QuestionName(data.get(j).getQuestionName());
+//                            if (questionNameSet.contains(questionName)){
+//                                Iterator iterator = questionNameSet.iterator();
+//                                while (iterator.hasNext()){
+//                                    if (iterator.next().equals(questionName)){
+//                                        send.addRestData(addDataToRestDataClass(data.get(j)));
+//                                        ((QuestionName)iterator.next()).setSend(send);
+//                                    }
+//                                }
+//                            }else {
+//                                send.addRestData(addDataToRestDataClass(data.get(j)));
+//                                questionName.setSend(send);
+//                                questionNameSet.add(questionName);
+//                            }
+//                        }
+//                        if (data.get(j).getSendReceive().equals("Rcv")){
+//                            receive = new Receive();
+//                            questionName = new QuestionName(data.get(j).getQuestionName());
+//                            if (questionNameSet.contains(questionName)) {
+//                                Iterator iterator = questionNameSet.iterator();
+//                                while (iterator.hasNext()) {
+//                                    if (iterator.next().equals(questionName)) {
+//                                        receive.addRestData(addDataToRestDataClass(data.get(j)));
+//                                        ((QuestionName)iterator.next()).setReceive(receive);
+//                                    }
+//                                }
+//                            } else {
+//                                receive.addRestData(addDataToRestDataClass(data.get(j)));
+//                                questionName.setReceive(receive);
+//                                questionNameSet.add(questionName);
+//                            }
+//                        }
+
+
+//receive = new Receive();
+//                                questionName = new QuestionName(data.get(j).getQuestionName());
+//                                if (questionNameSet.contains(questionName)) {
+//                                    Iterator iterator = questionNameSet.iterator();
+//                                    while (iterator.hasNext()) {
+//                                        if (iterator.next().equals(questionName)) {
+//                                            receive.addRestData(addDataToRestDataClass(data.get(j)));
+//                                            ((QuestionName)iterator.next()).setReceive(receive);
+//                                        }
+//                                    }
+//                                } else {
+//                                    receive.addRestData(addDataToRestDataClass(data.get(j)));
+//                                    questionName.setReceive(receive);
+//                                    questionNameSet.add(questionName);
+//                                }
 
 
 //restData.setOpcode(opcode);

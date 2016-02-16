@@ -30,4 +30,9 @@ public class Receive {
         restDataList.add(restData);
     }
 
+    @Override
+    public String toString(){
+        return "" + restDataList;
+    }
+
 }

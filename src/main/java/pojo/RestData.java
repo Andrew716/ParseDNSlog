@@ -101,4 +101,11 @@ public class RestData {
     public void setQuestionType(String questionType) {
         this.questionType = questionType;
     }
+
+    @Override
+    public String toString() {
+        return "Date:   " + date + "     Time:  " + time + "    ThreadID:  " + threadID + "     Context:  " + context+
+                "    InternalPacketIdentifier: " + internalPacketIdentifier + "    Protocol:  " + protocol +
+                "    Xid:  " + xidHex + "    Opcode: " + opcode + "     questionType:  " + questionType;
+    }
 }

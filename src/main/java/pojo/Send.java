@@ -27,4 +27,9 @@ public class Send {
     public void addRestData(RestData restData){
         restDataList.add(restData);
     }
+
+    @Override
+    public String toString(){
+        return ""+ restDataList;
+    }
 }

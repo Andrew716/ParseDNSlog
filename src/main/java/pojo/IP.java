@@ -1,13 +1,15 @@
 package pojo;
 
 
+import java.util.Set;
+
 /**
  * Created by andrii on 12.02.16.
  */
 public class IP {
 
     private String ip;
-   // private Set<QuestionName> questionNameSet;
+    private Set<QuestionName> questionNameSet;
 
     public IP(){
     }
@@ -26,10 +28,10 @@ public class IP {
 
     @Override
     public String toString(){
-        return ip;
+        return "ip: " +ip;
     }
 
-    /*public Set<QuestionName> getQuestionNameSet() {
+    public Set<QuestionName> getQuestionNameSet() {
         return questionNameSet;
     }
 
@@ -39,5 +41,6 @@ public class IP {
 
     public void addQuestionName(QuestionName questionName){
         questionNameSet.add(questionName);
-    }*/
+    }
+
 }
