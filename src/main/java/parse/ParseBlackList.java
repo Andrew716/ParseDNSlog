@@ -12,8 +12,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by andrii on 12.02.16.
+ *com.relatedata.evi.ParseBlackList
+ *
+ * The class ParseBlackList parses file, which contains blackList of IP
+ * to suitable view and statement for working.
+ *
+ * @author Andrii Koropets
+ * @since 2016-02-16
  */
+
 public class ParseBlackList {
 
     public static final String PATH_TO_BLACK_LIST_FILE = "/home/andrii/IdeaProjects/ParsingDNS_Server_File/src/main/resources/full_blacklist_database.txt";
@@ -21,6 +28,11 @@ public class ParseBlackList {
     public static final String PATH_TO_FOUND_BLACK_IP = "/home/andrii/IdeaProjects/ParsingDNS_Server_File/src/main/resources/found_black_ip.txt";
     public static final Logger LOGGER = Logger.getLogger("Info logging");
     public static final String REG_EX_FOR_IP = "([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+).";
+
+    /**
+     * This method parses file, which contains blackList of ip and information about them
+     * and adds ip to the new file, which contains only ip's.
+     */
 
     public static void parseFile() {
         BufferedReader bufferedReader = null;
@@ -54,6 +66,11 @@ public class ParseBlackList {
             }
         }
     }
+
+    /**
+     *This method compare one given ip with list of ip's in blackList of ip.
+     * @param ip
+     */
 
     public static void compareIPWithBlackList(String ip){
         BufferedReader bufferedReader = null;

@@ -1,20 +1,40 @@
 package parse;
 
-
-//com.relatedata.evi.ReadFromFile(FileReader)
 import com.google.gson.Gson;
-import pojo.*;
+import pojo.Send;
+import pojo.Receive;
+import pojo.Opcode;
+import pojo.RestData;
+import pojo.QuestionName;
+import pojo.IP;
+import pojo.Action;
 
-import java.io.*;
-import java.security.AccessControlContext;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by andrii on 09.02.16.
+ *com.relatedata.evi.ReadFromFile
+ *
+ * The class extracts data from file, which contains dns logs(dns.log)
+ * turns domain names in appropriate view for user and then parses dns logs
+ * and stores them in new file. Parsing occurred by method writeDataToPOJOClasses().
+ *
+ * @author Andrii Koropets
+ * @since 2016-02-16
  */
 
 public class ReadFromFIle {
@@ -25,6 +45,13 @@ public class ReadFromFIle {
     public static final Logger LOGGER = Logger.getLogger("Info logging");
     public static final String REG_EX_DATE = "^([0-9]+\\.[0-9]+\\.[0-9]+)\\s+([0-9]+\\:[0-9]+\\:[0-9]+)\\s+(\\w+)\\s+(\\w+)\\s+(\\w+)\\s+(\\w+)\\s+(\\w+)\\s+([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)\\s+(\\w+)\\s+(\\w)\\s+\\[([0-9]+)\\s+(\\w+)\\s+(\\w+)\\]\\s+(\\w+)\\s+(\\S+)$";
     public static final String REG_EX_IP = "^\\(\\d+\\)(\\S+)\\(\\d\\)$";
+
+    /**
+     * Method readFile() reads data from file, which contains dns logs and
+     * saves them in POJO classes for further analysis and parsing
+     * @return List. This returns list of data which were in file,
+     * which contains dns log.
+     */
 
     public static List readFile() {
         List<UniversalClass> storeDataList = new ArrayList<UniversalClass>();
@@ -72,6 +99,11 @@ public class ReadFromFIle {
         return storeDataList;
     }
 
+    /**
+     * This method does researching and for writing data in file.
+     * @throws IOException If file does not exist.
+     */
+
     public static void writeDataToPOJOClasses() throws IOException {
         List<UniversalClass> data = readFile();
         Send send = null;
@@ -79,12 +111,10 @@ public class ReadFromFIle {
         IP ip;
         boolean flagForReceive = false;
         boolean flagForSend = false;
-        boolean flagForCircle = false;
         Set<QuestionName> questionNameSet;
         QuestionName questionName;
         FileWriter fileWriter = new FileWriter(JSON_FILE_PATH);
         PrintWriter printWriter = new PrintWriter(fileWriter);
-        ParsedString parsedString = new ParsedString();
         System.out.println(data.size());
         Action action = new Action();
         for (int i = 0; i < data.size(); i++) {
@@ -183,10 +213,13 @@ public class ReadFromFIle {
         fileWriter.write(writeDataToJSONString(action));
         printWriter.println();
         fileWriter.close();
-        /*for (int i = 0; i < action.getIpList().size(); i++){
-            System.out.println(action.getIpList().get(i).toString());
-        }*/
     }
+
+    /**
+     * This method writes data in json string.
+     * @param parsedString the parameter which will be turned in json string
+     * @return json string which will be added in JSON file
+     */
 
     public static String writeDataToJSONString(Action parsedString){
         Gson gson = new Gson();
@@ -194,15 +227,25 @@ public class ReadFromFIle {
         return jsonString;
     }
 
+    /**
+     * This method writes data from list to auxiliary object of RestData
+     * for helping parsing data.
+     * @param universalClass stores information which will be parsed and added in
+     *                       object of class RestData.
+     * @return object which contains data of dns log string
+     */
+
     public static RestData addDataToRestDataClass(UniversalClass universalClass){
         Opcode opcode = new Opcode(universalClass.getOpcode().getFlagsHex(), universalClass.getOpcode().getFlagsCharCode(), universalClass.getOpcode().getRespondedCode());
         RestData restData = new RestData(universalClass.getDate(),universalClass.getTime(),universalClass.getThreadID(),universalClass.getContext(),universalClass.getInternalPacketIdentifier(),universalClass.getProtocol(),universalClass.getXidHex(),opcode, universalClass.getQuestionType());
         return restData;
     }
 
-    public static void compareWithBlackList(){
-        //// TODO: 16.02.16 method for comparing JSON parsed file with BlackList ip
-    }
+    /**
+     *This method turns bad viewed domain which was in dns.log to good  viewed domain.
+     * @param badDomainString The bad viewed domain string
+     * @return string of good viewed domain name
+     */
 
     public static String turnDomainToGoodView(String badDomainString) {
         String realDomain = null;
@@ -245,115 +288,3 @@ public class ReadFromFIle {
         return realDomain;
     }
 }
-
-
-//send = new Send();
-//                                questionName = new QuestionName(data.get(j).getQuestionName());
-//                                if (questionNameSet.contains(questionName)) {
-//                                    Iterator iterator = questionNameSet.iterator();
-//                                    while (iterator.hasNext()) {
-//                                        if (iterator.next().equals(questionName)) {
-//                                            send.addRestData(addDataToRestDataClass(data.get(j)));
-//                                            ((QuestionName)iterator.next()).setSend(send);
-//                                        }
-//                                    }
-//                                } else {
-//                                    send.addRestData(addDataToRestDataClass(data.get(j)));
-//                                    questionName.setSend(send);
-//                                    questionNameSet.add(questionName);
-//                                }
-
-//                    }else {
-//                        if (data.get(j).getSendReceive().equals("Snd")){
-//                            send = new Send();
-//                            questionName = new QuestionName(data.get(j).getQuestionName());
-//                            if (questionNameSet.contains(questionName)){
-//                                Iterator iterator = questionNameSet.iterator();
-//                                while (iterator.hasNext()){
-//                                    if (iterator.next().equals(questionName)){
-//                                        send.addRestData(addDataToRestDataClass(data.get(j)));
-//                                        ((QuestionName)iterator.next()).setSend(send);
-//                                    }
-//                                }
-//                            }else {
-//                                send.addRestData(addDataToRestDataClass(data.get(j)));
-//                                questionName.setSend(send);
-//                                questionNameSet.add(questionName);
-//                            }
-//                        }
-//                        if (data.get(j).getSendReceive().equals("Rcv")){
-//                            receive = new Receive();
-//                            questionName = new QuestionName(data.get(j).getQuestionName());
-//                            if (questionNameSet.contains(questionName)) {
-//                                Iterator iterator = questionNameSet.iterator();
-//                                while (iterator.hasNext()) {
-//                                    if (iterator.next().equals(questionName)) {
-//                                        receive.addRestData(addDataToRestDataClass(data.get(j)));
-//                                        ((QuestionName)iterator.next()).setReceive(receive);
-//                                    }
-//                                }
-//                            } else {
-//                                receive.addRestData(addDataToRestDataClass(data.get(j)));
-//                                questionName.setReceive(receive);
-//                                questionNameSet.add(questionName);
-//                            }
-//                        }
-
-
-//receive = new Receive();
-//                                questionName = new QuestionName(data.get(j).getQuestionName());
-//                                if (questionNameSet.contains(questionName)) {
-//                                    Iterator iterator = questionNameSet.iterator();
-//                                    while (iterator.hasNext()) {
-//                                        if (iterator.next().equals(questionName)) {
-//                                            receive.addRestData(addDataToRestDataClass(data.get(j)));
-//                                            ((QuestionName)iterator.next()).setReceive(receive);
-//                                        }
-//                                    }
-//                                } else {
-//                                    receive.addRestData(addDataToRestDataClass(data.get(j)));
-//                                    questionName.setReceive(receive);
-//                                    questionNameSet.add(questionName);
-//                                }
-
-
-//restData.setOpcode(opcode);
-
-/*restData.setDate(universalClass.getDate());
-        restData.setTime(universalClass.getTime());
-        restData.setThreadID(universalClass.getThreadID());
-        restData.setContext(universalClass.getContext());
-        restData.setInternalPacketIdentifier(universalClass.getInternalPacketIdentifier());
-        restData.setProtocol(universalClass.getProtocol());
-        restData.setXidHex(universalClass.getXidHex());*/
-
-// restData.setQuestionType(universalClass.getQuestionType());
-
-/*
-send = new Send();
-                        receive = new Receive();
-                        if (data.get(i).getSendReceive().equals("Snd") && data.get(j).getSendReceive().equals("Rcv")) {
-                            System.out.println("55555555555");
-                            receive.addRestData(addDataToRestDataClass(data.get(j)));
-                            flagForSendNotEqual = true;
-                        }
-                        if (data.get(i).getSendReceive().equals("Rcv")  && data.get(j).getSendReceive().equals("Rcv")) {
-                            System.out.println("66666666666666666");
-                            receive.addRestData(addDataToRestDataClass(data.get(j)));
-                            flagForReceiveNotEqual = true;
-                        }
-                        if (data.get(i).getSendReceive().equals("Rcv")  && data.get(j).getSendReceive().equals("Snd")) {
-                            System.out.println("77777777777777777");
-                            send.addRestData((addDataToRestDataClass(data.get(j))));
-                            flagForReceiveNotEqual = true;
-                        }
-                        if (data.get(i).getSendReceive().equals("Snd")  && data.get(j).getSendReceive().equals("Snd")) {
-                            System.out.println("88888888888888888888");
-                            send.addRestData(addDataToRestDataClass(data.get(j)));
-                            flagForSendNotEqual = true;
-                        }
-                        questionName = new QuestionName(data.get(j).getQuestionName());
-                        questionName.setSend(send);
-                        questionName.setReceive(receive);
-                        questionNameSet.add(questionName);
- */

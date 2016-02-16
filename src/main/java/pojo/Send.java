@@ -3,7 +3,13 @@ package pojo;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * Created by andrii on 12.02.16.
+ * com.relatedata.evi.Send
+ *
+ * This POJO class stores data for writing them in
+ * JSON file.
+ *
+ * @author Andrii Koropets
+ * @since 2016-02-16
  */
 public class Send {
 

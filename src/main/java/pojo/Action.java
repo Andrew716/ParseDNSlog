@@ -1,13 +1,18 @@
 package pojo;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
- * Created by andrii on 15.02.16.
+ * com.relatedata.evi.Action
+ *
+ * This POJO class contains set of ip for writing
+ * this set in JSON file.
+ *
+ * @author Andrii Koropets
+ * @since 2016-02-16
  */
+
 public class Action {
 
     private Set<IP> ipList = new HashSet<IP>();

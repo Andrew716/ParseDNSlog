@@ -1,7 +1,13 @@
 package pojo;
 
 /**
- * Created by andrii on 13.02.16.
+ * com.relatedata.evi.RestData
+ *
+ * This POJO class is like auxiliary class for storing data
+ * from dns file.
+ *
+ * @author Andrii Koropets
+ * @since 2016-02-16
  */
 public class RestData {
 

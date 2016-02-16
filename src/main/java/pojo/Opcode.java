@@ -1,8 +1,15 @@
 package pojo;
 
 /**
- * Created by andrii on 12.02.16.
+ * com.relatedata.evi.Opcode
+ *
+ * This POJO class has fields for storing information which
+ * will be written to JSON file.
+ *
+ * @author Andrii Koropets
+ * @since 2016-02-16
  */
+
 public class Opcode {
 
     private String flagsHex;

@@ -1,12 +1,18 @@
 package pojo;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
 /**
- * Created by andrii on 12.02.16.
+ * com.relatedata.evi.Receive
+ *
+ * This POJO classes has field which stores data for
+ * writing information to JSON file.
+ *
+ * @author Andrii Koropets
+ * @since 2016-02-16
  */
+
 public class Receive {
 
     private List<RestData> restDataList = new ArrayList<RestData>();

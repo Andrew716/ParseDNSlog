@@ -1,10 +1,14 @@
 package pojo;
 
-
 import java.util.Set;
 
 /**
- * Created by andrii on 12.02.16.
+ * com.relatedata.evi.IP
+ *
+ * This POJO stores data for writing them in JSON file.
+ *
+ * @author Andrii Koropets
+ * @since 2016-02-16
  */
 public class IP {
 

@@ -3,7 +3,13 @@ package parse;
 import pojo.Opcode;
 
 /**
- * Created by andrii on 13.02.16.
+ * com.relatedata.evi.UniversalClass
+ *
+ * This is auxiliary class which has fields for
+ * storing information which was in dns.log
+ *
+ * @author Andrii Koropets
+ * @since 2016-02-16
  */
 public class UniversalClass {
 
