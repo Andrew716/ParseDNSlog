@@ -1,5 +1,7 @@
 package parse;
 
+
+//com.relatedata.evi.ReadFromFile(FileReader)
 import com.google.gson.Gson;
 import pojo.*;
 
@@ -106,7 +108,6 @@ public class ReadFromFIle {
             }
             if (i < data.size()-1){
                 for (int j = i + 1; j < data.size(); j++) {
-
                     if (data.get(i).getRemoteIP().equals(data.get(j).getRemoteIP())) {
                         if (data.get(i).getQuestionName().equals(data.get(j).getQuestionName())) {
                             if (data.get(j).getSendReceive().equals("Rcv")) {
@@ -154,18 +155,21 @@ public class ReadFromFIle {
                                     }
                             }else {
                                 questionName = new QuestionName(data.get(j).getQuestionName());
-                                if (data.get(j).equals("Snd")){
+                                if (data.get(j).getSendReceive().equals("Snd")){
                                     send = new Send();
                                     send.addRestData(addDataToRestDataClass(data.get(j)));
                                     questionName.setSend(send);
                                 }
-                                if (data.get(j).equals("Rcv")){
+                                if (data.get(j).getSendReceive().equals("Rcv")){
                                     receive = new Receive();
                                     receive.addRestData(addDataToRestDataClass(data.get(j)));
                                     questionName.setReceive(receive);
                                 }
                                 questionNameSet.add(questionName);
                             }
+                            numberForComparedQuestionNumber = j;
+                            data.remove(numberForComparedQuestionNumber);
+                            j = j - 1;
                         }
                     }
                 }
